@@ -41,6 +41,7 @@ private:
   uint16_t timeout_secs_;
   std::string object_frame_name_;
   rclcpp::Time start_time_;
+  const double max_correspondence_dist_ = 0.05; // 5cm max distance for matches
 
 };
 

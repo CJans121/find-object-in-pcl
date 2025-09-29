@@ -87,6 +87,9 @@ BT::NodeStatus FindObjectInPcl::onRunning() {
   icp.setInputSource(model_cloud_);
   icp.setInputTarget(scene_filtered);
 
+  // --- Registration tolerances ---
+  icp.setMaxCorrespondenceDistance(max_correspondence_dist_);
+
   pcl::PointCloud<pcl::PointXYZ> aligned;
   icp.align(aligned);
 
