@@ -16,6 +16,35 @@ find_package(pcl_ros REQUIRED)
 find_package(pcl_conversions REQUIRED)
 find_package(behaviortree_cpp REQUIRED)
 
+# Specify include directories
+include_directories(
+  include
+)
+
+# Add library
+add_library(${PROJECT_NAME} src/${PROJECT_NAME}/${PROJECT_NAME}.cpp)
+
+# Specify ROS dependencies
+ament_target_dependencies(${PROJECT_NAME} rclcpp geometry_msgs sensor_msgs tf2 tf2_ros pcl_ros pcl_conversions)
+
+# Export the library target for visibility to other ROS packages
+ament_export_targets(${PROJECT_NAME} HAS_LIBRARY_TARGET)
+
+# Install the 'include' directory
+install(DIRECTORY include/
+  DESTINATION include
+)
+
+# Install the library and its headers
+install(TARGETS ${PROJECT_NAME}
+  EXPORT ${PROJECT_NAME} # Export for visibility with other CMake packages
+  ARCHIVE DESTINATION lib  # Static library installation path
+  LIBRARY DESTINATION lib  # Dynamic library installation path
+  RUNTIME DESTINATION bin  # Executable installation path
+  INCLUDES DESTINATION include # Header files
+)
+
+
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
   # the following line skips the linter which checks for copyrights
