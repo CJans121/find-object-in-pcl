@@ -38,6 +38,7 @@ private:
 
   pcl::PointCloud<pcl::PointXYZ>::Ptr model_cloud_;
   const double default_timeout_secs_ = 10.0;
+  std::string object_frame_name_;
 };
 
 #endif // FIND_OBJECT_IN_PCL_HPP_

@@ -14,6 +14,7 @@ FindObjectInPcl::FindObjectInPcl(const std::string &name,
 
 BT::PortsList FindObjectInPcl::providedPorts() {
   return {BT::InputPort<std::string>("stl_path"),
+	  BT::InputPort<std::string>("object_frame_name"),
           BT::InputPort<double>("timeout_secs"),
           BT::OutputPort<geometry_msgs::msg::TransformStamped>("pose")};
 }
@@ -29,6 +30,12 @@ BT::NodeStatus FindObjectInPcl::onStart() {
   if (!getInput("stl_path", stl_path)) {
     throw BT::RuntimeError(
         "FindObjectInPcl: missing required input [stl_path]");
+  }
+
+  // Get object frame name 
+  if (!getInput("object_frame_name", object_frame_name_)) {
+    throw BT::RuntimeError(
+        "FindObjectInPcl: missing required input [object_frame_name]");
   }
 
   // Get timeout value from port
@@ -93,8 +100,8 @@ BT::NodeStatus FindObjectInPcl::onRunning() {
 
   geometry_msgs::msg::TransformStamped transform_msg;
   transform_msg.header.stamp = latest_cloud_->header.stamp;
-  transform_msg.header.frame_id = "map";
-  transform_msg.child_frame_id = "object_pose";
+  transform_msg.header.frame_id = latest_cloud_->header.frame_id;
+  transform_msg.child_frame_id = object_frame_name_;
 
   transform_msg.transform.translation.x = tf(0, 3);
   transform_msg.transform.translation.y = tf(1, 3);
