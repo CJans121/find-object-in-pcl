@@ -37,8 +37,11 @@ private:
   sensor_msgs::msg::PointCloud2::SharedPtr latest_cloud_;
 
   pcl::PointCloud<pcl::PointXYZ>::Ptr model_cloud_;
-  const double default_timeout_secs_ = 10.0;
+  const uint16_t default_timeout_secs_ = 10;
+  uint16_t timeout_secs_;
   std::string object_frame_name_;
+  rclcpp::Time start_time_;
+
 };
 
 #endif // FIND_OBJECT_IN_PCL_HPP_

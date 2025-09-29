@@ -15,7 +15,7 @@ FindObjectInPcl::FindObjectInPcl(const std::string &name,
 BT::PortsList FindObjectInPcl::providedPorts() {
   return {BT::InputPort<std::string>("stl_path"),
 	  BT::InputPort<std::string>("object_frame_name"),
-          BT::InputPort<double>("timeout_secs"),
+          BT::InputPort<uint16_t>("timeout_secs"),
           BT::OutputPort<geometry_msgs::msg::TransformStamped>("pose")};
 }
 BT::NodeStatus FindObjectInPcl::onStart() {
@@ -39,11 +39,11 @@ BT::NodeStatus FindObjectInPcl::onStart() {
   }
 
   // Get timeout value from port
-  if (!getInput("timeout_secs", timeout_sec_)) {
+  if (!getInput("timeout_secs", timeout_secs_)) {
     RCLCPP_WARN(ros_node_->get_logger(),
-                "No timeout specified, using default %d.",
+                "No timeout specified, using default %u.",
                 default_timeout_secs_);
-    timeout_sec_ = default_timeout_secs_; // fallback
+    timeout_secs_ = default_timeout_secs_; // fallback
   }
 
   // Try loading the mesh
@@ -68,9 +68,9 @@ BT::NodeStatus FindObjectInPcl::onRunning() {
 
   // Check for timeout
   rclcpp::Duration elapsed = ros_node_->now() - start_time_;
-  if (elapsed.seconds() > timeout_sec_) {
+  if (elapsed.seconds() > timeout_secs_) {
     RCLCPP_WARN(ros_node_->get_logger(),
-                "FindObjectInPcl timed out after %.2f seconds", timeout_sec_);
+                "FindObjectInPcl timed out after %u seconds", timeout_secs_);
     return BT::NodeStatus::FAILURE;
   }
 

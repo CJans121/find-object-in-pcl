@@ -25,7 +25,7 @@ include_directories(
 add_library(${PROJECT_NAME} src/${PROJECT_NAME}/${PROJECT_NAME}.cpp)
 
 # Specify ROS dependencies
-ament_target_dependencies(${PROJECT_NAME} rclcpp geometry_msgs sensor_msgs tf2 tf2_ros pcl_ros pcl_conversions)
+ament_target_dependencies(${PROJECT_NAME} rclcpp geometry_msgs sensor_msgs tf2 tf2_ros pcl_ros pcl_conversions behaviortree_cpp)
 
 # Export the library target for visibility to other ROS packages
 ament_export_targets(${PROJECT_NAME} HAS_LIBRARY_TARGET)
