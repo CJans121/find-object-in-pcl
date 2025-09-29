@@ -116,6 +116,13 @@ BT::NodeStatus FindObjectInPcl::onRunning() {
   transform_msg.transform.rotation.z = q.z();
   transform_msg.transform.rotation.w = q.w();
 
+  // For debugging purposes
+  static_broadcaster_->sendTransform(transform_msg);
+  RCLCPP_INFO(ros_node_->get_logger(),
+      "Published debug TF frame [%s] in [%s]",
+      transform_msg.child_frame_id.c_str(),
+      transform_msg.header.frame_id.c_str());
+
   setOutput("pose", transform_msg);
 
   return BT::NodeStatus::SUCCESS;

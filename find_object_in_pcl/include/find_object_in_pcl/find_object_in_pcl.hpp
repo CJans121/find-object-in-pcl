@@ -13,6 +13,7 @@
 #include <pcl/point_types.h> // Definitions for point types (e.g., pcl::PointXYZ, pcl::PointNormal, etc.)
 #include <pcl/registration/icp.h> // ICP (Iterative Closest Point) algorithm for pointcloud alignment
 #include <pcl_conversions/pcl_conversions.h> // Conversions between ROS2 sensor_msgs/PointCloud2 <-> PCL point clouds
+#include <tf2_ros/static_transform_broadcaster.h>
 
 class FindObjectInPcl : public BT::StatefulActionNode {
 public:
@@ -42,6 +43,8 @@ private:
   std::string object_frame_name_;
   rclcpp::Time start_time_;
   const double max_correspondence_dist_ = 0.05; // 5cm max distance for matches
+  std::shared_ptr<tf2_ros::StaticTransformBroadcaster> static_broadcaster_;
+
 
 };
 
