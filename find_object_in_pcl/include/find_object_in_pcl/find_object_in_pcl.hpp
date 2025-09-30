@@ -15,10 +15,10 @@
 #include <pcl_conversions/pcl_conversions.h> // Conversions between ROS2 sensor_msgs/PointCloud2 <-> PCL point clouds
 #include <tf2_ros/static_transform_broadcaster.h>
 
+namespace find_object_in_pcl {
 class FindObjectInPcl : public BT::StatefulActionNode {
 public:
-  FindObjectInPcl(const std::string &name, const BT::NodeConfiguration &config,
-                  const rclcpp::Node::SharedPtr &ros_node);
+  FindObjectInPcl(const std::string &name, const BT::NodeConfig &config);
 
   static BT::PortsList providedPorts();
 
@@ -44,8 +44,6 @@ private:
   rclcpp::Time start_time_;
   const double max_correspondence_dist_ = 0.05; // 5cm max distance for matches
   std::shared_ptr<tf2_ros::StaticTransformBroadcaster> static_broadcaster_;
-
-
 };
-
+} // namespace find_object_in_pcl
 #endif // FIND_OBJECT_IN_PCL_HPP_

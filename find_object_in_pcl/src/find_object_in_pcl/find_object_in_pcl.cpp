@@ -1,9 +1,9 @@
 #include "find_object_in_pcl/find_object_in_pcl.hpp"
 
-FindObjectInPcl::FindObjectInPcl(const std::string &name,
-                                 const BT::NodeConfiguration &config,
-                                 const rclcpp::Node::SharedPtr &ros_node)
-    : BT::StatefulActionNode(name, config), ros_node_(ros_node) {
+namespace find_object_in_pcl {
+FindObjectInPcl::FindObjectInPcl(const std::string &name, const BT::NodeConfig &config)
+    : BT::StatefulActionNode(name, config) {
+  ros_node_ = std::make_shared<rclcpp::Node>(name);
   // Subscribe to depth camera pointcloud
   pointcloud_sub_ =
       ros_node_->create_subscription<sensor_msgs::msg::PointCloud2>(
@@ -14,16 +14,11 @@ FindObjectInPcl::FindObjectInPcl(const std::string &name,
 
 BT::PortsList FindObjectInPcl::providedPorts() {
   return {BT::InputPort<std::string>("stl_path"),
-	  BT::InputPort<std::string>("object_frame_name"),
+          BT::InputPort<std::string>("object_frame_name"),
           BT::InputPort<uint16_t>("timeout_secs"),
           BT::OutputPort<geometry_msgs::msg::TransformStamped>("pose")};
 }
 BT::NodeStatus FindObjectInPcl::onStart() {
-  // Try getting the pointcloud
-  if (!latest_cloud_) {
-    RCLCPP_WARN(ros_node_->get_logger(), "No pointcloud received yet.");
-    return BT::NodeStatus::FAILURE;
-  }
 
   // Get STL path from input port
   std::string stl_path;
@@ -32,7 +27,7 @@ BT::NodeStatus FindObjectInPcl::onStart() {
         "FindObjectInPcl: missing required input [stl_path]");
   }
 
-  // Get object frame name 
+  // Get object frame name
   if (!getInput("object_frame_name", object_frame_name_)) {
     throw BT::RuntimeError(
         "FindObjectInPcl: missing required input [object_frame_name]");
@@ -71,6 +66,15 @@ BT::NodeStatus FindObjectInPcl::onRunning() {
   if (elapsed.seconds() > timeout_secs_) {
     RCLCPP_WARN(ros_node_->get_logger(),
                 "FindObjectInPcl timed out after %u seconds", timeout_secs_);
+    return BT::NodeStatus::FAILURE;
+  }
+
+  // Spin the node
+  rclcpp::spin_some(ros_node_);
+
+  // Try getting the pointcloud
+  if (!latest_cloud_) {
+    RCLCPP_ERROR(ros_node_->get_logger(), "No pointcloud received yet.");
     return BT::NodeStatus::FAILURE;
   }
 
@@ -118,10 +122,9 @@ BT::NodeStatus FindObjectInPcl::onRunning() {
 
   // For debugging purposes
   static_broadcaster_->sendTransform(transform_msg);
-  RCLCPP_INFO(ros_node_->get_logger(),
-      "Published debug TF frame [%s] in [%s]",
-      transform_msg.child_frame_id.c_str(),
-      transform_msg.header.frame_id.c_str());
+  RCLCPP_INFO(ros_node_->get_logger(), "Published debug TF frame [%s] in [%s]",
+              transform_msg.child_frame_id.c_str(),
+              transform_msg.header.frame_id.c_str());
 
   setOutput("pose", transform_msg);
 
@@ -157,3 +160,4 @@ FindObjectInPcl::preprocess_cloud(pcl::PointCloud<pcl::PointXYZ>::Ptr input) {
 
   return filtered;
 }
+} // namespace find_object_in_pcl
